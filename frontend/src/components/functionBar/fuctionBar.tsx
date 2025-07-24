@@ -12,6 +12,7 @@ import useWebSocket from "react-use-websocket";
 import CustomExcalidraw from "./lasyExcalidraw";
 import { Qabox } from "./qabox";
 import ResourcesTool from "./resourcesTool";
+import QABoxUploadResource from "../qabox/qaboxUploadResource";
 
 export default function FuctionBar() {
 	const ref = useRef<HTMLDivElement>(null);
@@ -67,8 +68,20 @@ export default function FuctionBar() {
 					{/* Paper Search Tool */}
 					{currentTool.id === 2 && <ResourcesTool />}
 
-					{/* Excalidraw Tool */}
 					{currentTool.id === 3 && (
+						<div className="h-full w-full max-w-5xl mx-auto px-4 py-6">
+							{/* QA Box Resources Section */}
+							{currentUserProject.value.qaBox && (
+								<div className="bg-white  rounded-lg shadow-sm border border-action/10 overflow-hidden">
+									<QABoxUploadResource
+										qaBoxId={currentUserProject.value.qaBox}
+									/>
+								</div>
+							)}
+						</div>
+					)}
+					{/* Excalidraw Tool */}
+					{currentTool.id === 4 && (
 						<div className="h-full w-full">
 							<CustomExcalidraw />
 						</div>
@@ -76,9 +89,9 @@ export default function FuctionBar() {
 				</div>
 
 				{/* Chat Input - Always present except for Excalidraw */}
-				{currentTool.id !== 3 && (
+				{currentTool.id !== 4 && (
 					<div className="w-full border-t border-gray-200 bg-white">
-						<div className="max-w-3xl mx-auto px-4">
+						<div className="max-w-5xl mx-auto px-4">
 							<ChatInput
 								chatId={currentUserProject.value.chatbox}
 								sendSocketMesssage={sendJsonMessage}

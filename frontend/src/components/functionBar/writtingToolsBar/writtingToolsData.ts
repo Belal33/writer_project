@@ -1,5 +1,6 @@
 import {
 	BotIcon,
+	DramaIcon,
 	EditIcon,
 	FilePlus2Icon,
 	FileQuestionIcon,
@@ -35,7 +36,7 @@ const writtingToolsData: WritingTool[] = [
 		id: 2,
 		name: "Resources",
 		description: "Search and manage research papers",
-		Icon: FilePlus2Icon,
+		Icon: FileQuestionIcon,
 		category: "resources",
 		shortcut: "Ctrl+R",
 	},
@@ -43,9 +44,17 @@ const writtingToolsData: WritingTool[] = [
 		id: 3,
 		name: "Q&A",
 		description: "Find answers in your resources",
-		Icon: FileQuestionIcon,
+		Icon: FilePlus2Icon,
 		category: "resources",
 		shortcut: "Ctrl+Q",
+	},
+	{
+		id: 4,
+		name: "ExaliDrawer",
+		description: "Explain your thoughts in a visual way",
+		Icon: DramaIcon,
+		category: "resources",
+		shortcut: "Ctrl+X",
 	},
 ];
 

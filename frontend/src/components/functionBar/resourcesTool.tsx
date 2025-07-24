@@ -11,7 +11,7 @@ export default function ResourcesTool() {
 	return (
 		<div className="h-full flex flex-col bg-main">
 			<div className="sticky top-0 z-10 bg-white border-b border-action/10 shadow-sm">
-				<div className="max-w-3xl mx-auto px-4 py-6">
+				<div className="max-w-5xl mx-auto px-4 py-6">
 					{/* Header */}
 					<div className="flex flex-col gap-6">
 						<div className="flex items-center justify-between">
@@ -31,13 +31,13 @@ export default function ResourcesTool() {
 
 			{/* Scrollable Content */}
 			<div className="flex-1 overflow-y-auto">
-				<div className="max-w-3xl mx-auto px-4 py-6 space-y-8">
+				<div className="max-w-5xl mx-auto px-4 py-6 space-y-8">
 					{/* QA Box Resources Section */}
-					{currentUserProject.value.qaBox && (
+					{/* {currentUserProject.value.qaBox && (
 						<div className="bg-white rounded-lg shadow-sm border border-action/10 overflow-hidden">
 							<QABoxUploadResource qaBoxId={currentUserProject.value.qaBox} />
 						</div>
-					)}
+					)} */}
 
 					{/* Paper Search Results Section */}
 					<div className="bg-white rounded-lg shadow-sm border border-action/10 p-6">
