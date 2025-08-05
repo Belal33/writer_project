@@ -2,8 +2,10 @@ import { setprojectOpenedTool } from "@/rtk/slices/projectOpenedTool";
 import { useAppDispatch, useAppSelector } from "@/rtk/store";
 import writtingTools from "./writtingToolsData";
 import { SimpleTooltip } from "../../simpleTooltip";
-import ActiveResourcesTogglerButton from "../activeResourcesTogglerButton";
 import ProjectBarInfo from "./projectBarInfo";
+import { ArrowLeftIcon } from "lucide-react";
+import Link from "next/link";
+import pagePaths from "@/urlPaths/pagePaths";
 
 export default function WritingToolsBar() {
 	const appDispatch = useAppDispatch();
@@ -18,9 +20,9 @@ export default function WritingToolsBar() {
       right-0 
       ${
 				openedTool.id ? "top-0" : "absolute bottom-4"
-			}      px-4 md:px-6 flex items-center justify-between w-full z-10 
+			}      px-4 md:px-6 flex flex-col sm:flex-row sm:flex-wrap items-center justify-between w-full z-10 
       py-3 transition-all duration-500 ease-in-out delay-200 
-      bg-gradient-to-r from-[#aa2236]/5 via-white to-primary/5 border-b bg-white border-gray-200 shadow-md
+      bg-gradient-to-r from-[#aa2236]/5 bg-white via-white to-primary/5 border-b gap-3  border-gray-200 shadow-md
       backdrop-blur-sm
     `}
 		>
@@ -61,6 +63,19 @@ export default function WritingToolsBar() {
 								</SimpleTooltip>
 							</li>
 						))}
+						<SimpleTooltip tooltip="Back" delay={0}>
+							<Link
+								href={pagePaths.projectsPage}
+								className={`
+                                        relative p-3 rounded-lg flex items-center justify-center
+                                        transition-all duration-300 ease-in-out 
+                                        hover:scale-105 hover:shadow-md border bg-primary
+                                        hover:text-action text-white  border-gray-200 hover:border-action/20
+                                    `}
+							>
+								<ArrowLeftIcon className="w-5 h-5" />
+							</Link>
+						</SimpleTooltip>
 					</ul>
 				</nav>
 			</div>

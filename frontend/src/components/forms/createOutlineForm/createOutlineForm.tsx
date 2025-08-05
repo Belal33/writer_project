@@ -2,11 +2,12 @@
 
 import { Form } from "react-final-form";
 import FormButton from "../formFiels/formButton";
+import { CustomButton } from "../formFiels/customButton";
 import { CheckBoxContainer, CheckboxInput } from "../formFiels/checkBoxInput";
 import { onSubmitCreateOutlineFrom, validateCreateOutlineForm } from "./utils";
 import addIdsToNodes from "@/utils/editor/addNodeId";
 import useMyEditor from "@/components/editor/editorBuilder";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { ProjectDataContext } from "@/components/projectCreationSection/projectCreationForms";
 import serializeNodesToString from "@/utils/editor/serializeNodesToString";
 
@@ -18,6 +19,16 @@ export interface CreateProjectOutLineDataInterface {
 export default function CreateOutlineForm() {
 	const theEditor = useMyEditor();
 	const { projectData, setProjectData } = useContext(ProjectDataContext);
+	const [newDescription, setNewDescription] = useState("");
+	const handleAddDescription = () => {
+		if (newDescription.trim() !== "") {
+			setProjectData({
+				...projectData,
+				descriptions: [...(projectData.descriptions || []), newDescription],
+			});
+			setNewDescription("");
+		}
+	};
 	console.log(theEditor.api.string());
 	return (
 		<Form
@@ -67,6 +78,18 @@ export default function CreateOutlineForm() {
 								})}
 							</>
 						</CheckBoxContainer>
+						<div className="flex items-center gap-2 mt-4">
+							<input
+								type="text"
+								value={newDescription}
+								onChange={(e) => setNewDescription(e.target.value)}
+								className="border rounded-md p-2 flex-grow"
+								placeholder="Add a new description"
+							/>
+							<CustomButton className="text-sm p-1" onClickFunc={handleAddDescription}>
+								Add Description
+							</CustomButton>
+						</div>
 
 						<div className="buttons flex justify-end mt-10">
 							<div className="w-full sm:w-auto">

@@ -25,10 +25,8 @@ export default function ChatBody({
 	const [currentMessage, setCurrentMessage] = useContext(LastMessageContext);
 	const currentChatbox = useAppSelector((state) => state.currentUserChatbox);
 	const appDispatch = useAppDispatch();
-	console.log("currentMessage", currentChatbox.chatbox.messages);
 	useEffect(() => {
 		if (lastSocketMessage && currentMessage) {
-			console.log(lastSocketMessage);
 			if (lastSocketMessage.finish_reason) {
 				setCurrentMessage({
 					...currentMessage,
@@ -50,10 +48,12 @@ export default function ChatBody({
 			}
 
 			if (lastSocketMessage.finish_reason?.toLocaleLowerCase() == "stop") {
+				currentMessage.assistant_msg += lastSocketMessage.content || "";
 				appDispatch(
 					addChatMessage({ ...currentMessage, finish_reason: "stop" })
 				);
 				setCurrentMessage(undefined);
+				console.log("lastSocketMessage", lastSocketMessage);
 			}
 		}
 	}, [lastSocketMessage]);
@@ -61,7 +61,6 @@ export default function ChatBody({
 	useEffect(() => {
 		if (body.current) {
 			body.current?.scrollTo(0, body.current.scrollHeight);
-			console.log("scrolling");
 		}
 	}, [currentMessage]);
 	return (

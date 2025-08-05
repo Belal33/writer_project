@@ -23,6 +23,8 @@ const initialvalue = [
 	},
 ];
 
+	let timer: NodeJS.Timeout;
+	let timer1: NodeJS.Timeout;
 export default function MainEditor({ className }: { className?: string }) {
 	const [rewritePopoverVisibility, setRewritePopoverVisibility] =
 		useState(false);
@@ -45,8 +47,6 @@ export default function MainEditor({ className }: { className?: string }) {
 		);
 	}, []);
 
-	let timer: NodeJS.Timeout;
-	let timer1: NodeJS.Timeout;
 
 	return (
 		<div
@@ -60,13 +60,13 @@ export default function MainEditor({ className }: { className?: string }) {
 							if (timer1) clearTimeout(timer1);
 							timer1 = setTimeout(() => {
 								setRewritePopoverVisibility(true);
-							}, 1500);
+							}, 1000);
 						}}
 						onValueChange={(e) => {
 							if (timer) clearTimeout(timer);
 							timer = setTimeout(() => {
 								if (currentUserProject.value.id) saveArticle();
-							}, 2000);
+							}, 1000);
 						}}
 						editor={editor}
 					>
@@ -82,7 +82,7 @@ export default function MainEditor({ className }: { className?: string }) {
 								<FixedToolbarButtons />
 							</FixedToolbar>
 							<div className="flex-1 overflow-auto ">
-								<div className="max-w-[900px] mx-auto ">
+								<div className="max-w-5xl mx-auto ">
 									<Editor
 										className="p-8 md:p-12 min-h-full  backdrop-blur-sm shadow-[0_0_20px_rgba(169,33,53,0.1)] rounded-sm my-8 transition-all duration-300 hover:shadow-[0_0_30px_rgba(169,33,53,0.2)] hover:border-action/20 border border-action/10"
 										focusRing={false}

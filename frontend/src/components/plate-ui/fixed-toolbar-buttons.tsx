@@ -71,7 +71,7 @@ export function FixedToolbarButtons() {
 	return (
 		<div className="w-full overflow-hidden overflow-x-auto p-1 ">
 			<div
-				className="flex flex-wrap justify-between "
+				className="flex justify-between "
 				style={{
 					transform: "translateX(calc(-1px))",
 				}}

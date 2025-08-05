@@ -1,5 +1,4 @@
-"use client";
-
+import { CustomButton } from "@/components/forms/formFiels/customButton";
 import postCreateQABoxResourceAction from "@/endpointActions/postCreateQABoxResourceAction";
 import postCreateResourceAction from "@/endpointActions/postCreateResourceAction";
 import useCurrentQaBoxFetcher from "@/swrDataFetcher/currentQaBoxFetcher";
@@ -14,7 +13,6 @@ import {
 import React, { useState } from "react";
 import pdfToText from "react-pdftotext";
 
-// https://uploadcare.com/blog/how-to-upload-file-in-react/
 export default function SingleResourceUploader({
 	qaBoxId,
 }: {
@@ -38,26 +36,29 @@ export default function SingleResourceUploader({
 				setStatus("reading");
 				pdfToText(e.target.files[0])
 					.then((text) => {
-						let abstract: string = "";
+						let abstractText: string = "";
 						let splitedStr = text.toLowerCase().split("abstract");
 
 						if (text && splitedStr.length > 1) {
-							abstract = splitedStr.pop()?.slice(0, 500) + "...";
-						}
-						splitedStr = text.toLowerCase().split("summary");
-						if (text && splitedStr.length > 1) {
-							abstract = splitedStr?.pop()?.slice(0, 500) + "...";
+							abstractText = splitedStr.pop()?.slice(0, 500) + "...";
 						} else {
-							abstract = text?.slice(0, 500) + "...";
+							splitedStr = text.toLowerCase().split("summary");
+							if (text && splitedStr.length > 1) {
+								abstractText = splitedStr?.pop()?.slice(0, 500) + "...";
+							} else {
+								abstractText = text?.slice(0, 500) + "...";
+							}
 						}
-						setAbstract(abstract);
+						setAbstract(abstractText);
 						setTextFile(text);
 						setStatus("initial");
 					})
 					.catch((error) => {
-						console.error(error);
+						console.error("Failed to read PDF", error);
 						setStatus("fail");
 					});
+			}else{
+				setStatus("fail");
 			}
 		}
 	};
@@ -85,11 +86,9 @@ export default function SingleResourceUploader({
 				setTextFile(null);
 				setStatus("success");
 
-				// Reset success status after 2 seconds
-				setTimeout(() => {
-					setStatus("initial");
-				}, 2000);
+				setTimeout(() => setStatus("initial"), 2000);
 			} catch (error) {
+				console.error("Upload failed", error);
 				setStatus("fail");
 			}
 		} else {
@@ -108,15 +107,12 @@ export default function SingleResourceUploader({
 	};
 
 	return (
-		<div className="p-4 space-y-4">
+		<div className="space-y-4">
 			<div className="flex items-center gap-4">
-				<button
-					onClick={() => inputFileRef.current?.click()}
-					className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary bg-white border border-action/20 rounded-md hover:bg-action/5 hover:border-action/30 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-action/20"
-				>
-					<FilePlus2 size={16} className="text-action" />
+				<CustomButton dark onClickFunc={() => inputFileRef.current?.click()}>
+					<FilePlus2 size={16} />
 					Choose PDF
-				</button>
+				</CustomButton>
 				<input
 					ref={inputFileRef}
 					className="hidden"
@@ -125,24 +121,31 @@ export default function SingleResourceUploader({
 					accept=".pdf"
 					onChange={handleFileChange}
 				/>
-				{file && (
-					<div className="flex-1 flex items-center justify-between px-3 py-2 bg-main rounded-md border border-action/10">
-						<div className="flex items-center gap-2">
-							<FileIcon size={16} className="text-action/70" />
-							<span className="text-sm text-primary">{file.name}</span>
+					<div className="flex-1 flex items-center justify-between px-3 py-2 bg-gray-100 rounded-md border border-gray-200">
+						{file ? (
+							<>
+							<div className="flex items-center gap-2">
+							<FileIcon size={16} className="text-gray-500" />
+							<span className="text-sm text-gray-800">{file?.name}</span>
 						</div>
 						<button
 							onClick={clearFile}
-							className="p-1 hover:bg-action/10 rounded-full"
+							className="p-1 hover:bg-gray-200 rounded-full"
 						>
-							<XIcon size={14} className="text-mygray" />
+							<XIcon size={14} className="text-gray-500" />
 						</button>
+							</>
+						):
+						(
+							<span className="text-sm text-gray-500">
+								No file selected
+							</span>
+						)}
 					</div>
-				)}
 			</div>
 
 			{status === "reading" && (
-				<div className="flex items-center gap-2 text-sm text-action">
+				<div className="flex items-center gap-2 text-sm text-primary">
 					<div className="animate-spin">
 						<UploadIcon size={16} />
 					</div>
@@ -152,48 +155,35 @@ export default function SingleResourceUploader({
 
 			{file && abstract && (
 				<div className="space-y-3">
-					<div className="p-4 bg-main rounded-md border border-action/10">
-						<h4 className="text-sm font-medium text-primary mb-2">Preview</h4>
-						<div className="text-sm text-mygray max-h-32 overflow-y-auto scrollbar-custom">
+					<div className="p-4 bg-gray-50 rounded-md border border-gray-200">
+						<h4 className="text-sm font-medium text-gray-800 mb-2">
+							Preview
+						</h4>
+						<div className="text-sm text-gray-600 max-h-32 overflow-y-auto scrollbar-custom">
 							{abstract}
 						</div>
 					</div>
 
 					{file.type === "application/pdf" && (
 						<div className="flex justify-end">
-							<button
-								onClick={handleUpload}
-								disabled={status === "uploading"}
-								className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-action rounded-md hover:bg-action/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-action disabled:opacity-50 disabled:hover:bg-action"
-							>
-								{status === "uploading" ? (
-									<>
-										<div className="animate-spin">
-											<UploadIcon size={16} />
-										</div>
-										Uploading...
-									</>
-								) : (
-									<>
-										<UploadIcon size={16} />
-										Add Resource
-									</>
-								)}
-							</button>
+							<CustomButton dark onClickFunc={handleUpload}>
+								<UploadIcon size={16} />
+								Add Resource
+							</CustomButton>
 						</div>
 					)}
 				</div>
 			)}
 
 			{status === "success" && (
-				<div className="flex items-center gap-2 text-sm text-[#22c55e]">
+				<div className="flex items-center gap-2 text-sm text-green-600">
 					<CheckCircle size={16} />
 					File uploaded successfully!
 				</div>
 			)}
 
 			{status === "fail" && (
-				<div className="flex items-center gap-2 text-sm text-customred">
+				<div className="flex items-center gap-2 text-sm text-red-500">
 					<AlertCircle size={16} />
 					File upload failed. Please try again.
 				</div>

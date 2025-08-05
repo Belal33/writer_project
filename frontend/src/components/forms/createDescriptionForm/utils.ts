@@ -10,7 +10,7 @@ export async function onSubmitCreateDescriptionFrom(
 	values: CreateProjectDescriptionDataInterface
 ) {
 	const res = await postCreateDescriptionAction({
-		title: `  ${values.targeted_field}  ${values.written_content}  Article 
+		title: `  ${values.targeted_field}  ${values.written_content}   
 				Title:  '${values.title}
 				Language: ${lang[values.lang]}
 				'`,

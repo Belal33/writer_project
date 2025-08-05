@@ -44,7 +44,8 @@ export default function CreateDescriptionForm() {
 				});
 			}}
 			validate={(v: CreateProjectDescriptionDataInterface) => {
-				return validateCreateDescriptionForm(v, projects);
+				return validateCreateDescriptionForm(v, projects||[]);
+
 			}}
 			initialValues={{
 				written_content: "article",
@@ -72,10 +73,10 @@ export default function CreateDescriptionForm() {
 									name="lang"
 								/>
 								<RadioInput
-									labels={TypesOfWrittenContent.slice(0, 3).map(
+									labels={TypesOfWrittenContent.map(
 										(type) => type.name
 									)}
-									optionValues={TypesOfWrittenContent.slice(0, 3).map(
+									optionValues={TypesOfWrittenContent.map(
 										(type) => type.type
 									)}
 									values={values}

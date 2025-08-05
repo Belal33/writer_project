@@ -13,4 +13,6 @@ export default {
 	profilePage: "/user/profile",
 	chatPage: "/user/chat",
 	projectCreatePage: "/user/projects/create",
+	qaBoxesPage: "/user/qa-boxes",
+	qaBoxPage: "/user/qa-box",
 };

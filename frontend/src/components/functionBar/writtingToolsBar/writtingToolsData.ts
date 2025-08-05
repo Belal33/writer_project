@@ -1,9 +1,9 @@
 import {
 	BotIcon,
-	DramaIcon,
 	EditIcon,
 	FilePlus2Icon,
 	FileQuestionIcon,
+	PaintBucketIcon,
 } from "lucide-react";
 
 export interface WritingTool {
@@ -52,7 +52,7 @@ const writtingToolsData: WritingTool[] = [
 		id: 4,
 		name: "ExaliDrawer",
 		description: "Explain your thoughts in a visual way",
-		Icon: DramaIcon,
+		Icon: PaintBucketIcon,
 		category: "resources",
 		shortcut: "Ctrl+X",
 	},

@@ -40,14 +40,16 @@ export default function PaperSearchBody() {
 
 	// if all search data is pending
 	if (
-		papersSearchData.status === "pending" &&
+		// papersSearchData.status === "pending" &&
 		arxivSearchData.status === "pending" &&
 		archiveSearchData.status === "pending" &&
 		synthicalSearchData.status === "pending" &&
 		scopusSearchData.status === "pending" &&
 		EPMCSearchData.status === "pending"
 	)
-		return <SearchLoaderPage />;
+		return (
+				<SearchLoaderPage />
+		);
 
 	return (
 		<div className="space-y-8">
@@ -111,7 +113,7 @@ export default function PaperSearchBody() {
 				</div>
 			)}
 
-			{papersSearchData.value.length > 0 && (
+			{/* {papersSearchData.value.length > 0 && (
 				<div>
 					<h3 className="text-sm font-medium text-mygray mb-4 flex items-center gap-2">
 						Additional Results
@@ -121,7 +123,7 @@ export default function PaperSearchBody() {
 					</h3>
 					<PaperSearchResults papersSearchData={papersSearchData} />
 				</div>
-			)}
+			)} */}
 		</div>
 	);
 }

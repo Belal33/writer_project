@@ -7,20 +7,11 @@ export default function ProjectBarInfo() {
 	);
 
 	return (
-		<div className="flex gap-4 items-center">
-			<h1 className="font-semibold capitalize text-xl text-gray-800">
-				{currentUserProject.value.name}
-			</h1>
-
+		<div className="flex flex-wrap  gap-4 items-center">
 			<div className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg border border-gray-200 shadow-sm hover:shadow transition-all duration-200">
-				<div className="flex items-center gap-2">
-					<CreditCard className="w-4 h-4 text-gray-400" />
-					<span className="text-sm font-medium text-gray-600">Credits:</span>
-					<span className="font-semibold text-gray-900">
-						{currentUserProject.value.used_credits}
-					</span>
-				</div>
-
+				<StateLabel label="Credits" value={currentUserProject.value.used_credits} />
+				<StateLabel label="Words" value={currentUserProject.value.article_text?.split(" ").filter(Boolean).length||0} />
+				<StateLabel label="Characters" value={currentUserProject.value.article_text?.length||0} />
 				<div className="pl-2 border-l border-gray-200">
 					{(currentUserProject.status === "pending" ||
 						currentUserProject.status === "updating") && (
@@ -31,6 +22,20 @@ export default function ProjectBarInfo() {
 					)}
 				</div>
 			</div>
+			<h1 className="font-semibold capitalize text-xl text-gray-800">
+				{currentUserProject.value.name}
+			</h1>
 		</div>
 	);
 }
+function StateLabel({label,value}:{label:string,value:string|number}) {
+	return <div className="flex items-center flex-col">
+		<span className="text-xs p-0 font-medium text-gray-600">
+			{label}
+		</span>
+		<span className="font-semibold text-gray-900">
+			{value}
+		</span>
+	</div>;
+}
+

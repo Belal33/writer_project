@@ -3,6 +3,7 @@ import MainTitle from "@/components/mainTitle";
 import useUserQaBoxesFetcher from "@/swrDataFetcher/userQaBoxesFetcher";
 import Link from "next/link";
 import CreateQAboxModal from "../customModal/creatQAboxModal";
+import pagePaths from "@/urlPaths/pagePaths";
 
 export default function QABoxesList() {
 	const { qaBoxes, isLoading } = useUserQaBoxesFetcher();
@@ -22,7 +23,7 @@ export default function QABoxesList() {
 							key={qaBox.id}
 						>
 							<Link
-								href={`/qa-box/${qaBox.id}`}
+								href={`${pagePaths.qaBoxPage}/${qaBox.id}`}
 								key={qaBox.id}
 								className="block text-xl"
 							>

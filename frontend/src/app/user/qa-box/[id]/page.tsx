@@ -6,7 +6,8 @@ import { notFound } from "next/navigation";
 function QABoxPage({ params }: { params: any }) {
 	const { id } = params;
 
-	if (uuidRegex.test(id)) return <QABox id={id} />;
+	if (uuidRegex.test(id)) 
+		return <QABox id={id} />;
 	else return notFound();
 }
 

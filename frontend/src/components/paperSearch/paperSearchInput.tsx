@@ -1,4 +1,9 @@
 "use client";
+import { getArchiveSearch } from "@/rtk/slices/articleResources/archiveSearch";
+import { getArxivSearch } from "@/rtk/slices/articleResources/arxivSearch";
+import { getEPMCSearch } from "@/rtk/slices/articleResources/EPMCSearch";
+import { getScopusSearch } from "@/rtk/slices/articleResources/scopusSearch";
+import { getSynthicalSearch } from "@/rtk/slices/articleResources/synthicalSearch";
 import { searchAboutPapers } from "@/rtk/slices/papersSearch";
 import { useAppDispatch } from "@/rtk/store";
 import { SearchIcon } from "lucide-react";
@@ -9,7 +14,13 @@ export default function PaperSearchInput() {
 	const dispatch = useAppDispatch();
 
 	const searchHandler = (inputValue: string) => {
-		dispatch(searchAboutPapers({ query: inputValue.trim(), maxResults: 10 }));
+		// dispatch(searchAboutPapers({ query: inputValue.trim(), maxResults: 10 }));
+		dispatch(getArxivSearch({ query: inputValue.trim(), maxResults: 10 }));
+		dispatch(getScopusSearch({ query: inputValue.trim(), maxResults: 10 }));
+		dispatch(getEPMCSearch({ query: inputValue.trim(), maxResults: 10 }));
+		dispatch(getSynthicalSearch({ query: inputValue.trim(), maxResults: 10 }));
+		dispatch(getArchiveSearch({ query: inputValue.trim(), maxResults: 10 }));
+
 	};
 
 	const inputHandler = (e: KeyboardEvent<HTMLInputElement>) => {

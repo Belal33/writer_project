@@ -80,7 +80,7 @@ export default function AssistantMessage({
 								{message.created_at &&
 									new Date(message.created_at).toLocaleTimeString()}
 							</p>
-							<div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+							<div className="flex gap-2  transition-opacity">
 								<SimpleTooltip delay={200} tooltip="Add to editor">
 									<button
 										onClick={handelAddToEditor}
