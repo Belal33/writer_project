@@ -9,11 +9,13 @@ from .types import (
     SuggestDescriptionsResponse,
 )
 from .prompts import (
+    CREATE_TEXT_CONTENT,
     SUGGEST_DESCRIPTIONS_SYSTEM_MESSAGE,
     CREATE_OUTLINE_SYSTEM_MESSAGE,
     TEXT_COMPLETION_SYSTEM_MESSAGE,
     TEXT_IMPROVEMENT_SYSTEM_MESSAGE,
 )
+from .system_context.descriptions_creation import DESCRIPTIONS_CREATION_CONTEXT
 from environs import Env
 
 env = Env()
@@ -44,9 +46,10 @@ class GeminiModel(BaseGenerationModel):
     api_key = GEMINI_KEY
     default_model = "gemini-2.5-flash"
     client_class = genai.Client
-    available_models = ["gemini-2.0-flash", "gemini-2.5-flash"]
+    available_models = ["gemini-2.0-flash", "gemini-2.5-flash","gemini-2.5-pro"]
     audio_transcription_model = "gemini-2.5-flash"
     default_embedding_model = "text-embedding-004"
+    # default_embedding_model = "gemini-embedding-001"
 
     def chat_completion(
         self, messages: List[Dict[str, str]], system_message: str = None
@@ -116,23 +119,13 @@ class GeminiModel(BaseGenerationModel):
         except Exception as e:
             raise RuntimeError(f"Gemini API error: {e}")
 
-    def text_embedding(self, text):
-        res = self.client.models.embed_content(
-            model=self.default_embedding_model, contents=text
-        )
-
-        print(res.embeddings)
-        return TextEmbeddingResponse(
-            embedding=res.embeddings[0].values,
-            model=self.default_embedding_model,
-        )
-
+    
     def suggest_descriptions(
         self,
         article_title: str,
     ) -> SuggestDescriptionsResponse:
         response = self.client.models.generate_content(
-            model=self.model,
+            model= self.model,
             contents=article_title,
             config={
                 "system_instruction": SUGGEST_DESCRIPTIONS_SYSTEM_MESSAGE,
@@ -151,7 +144,7 @@ class GeminiModel(BaseGenerationModel):
     def genereate_article_outline(self, article_title: str, description: str):
         res = self.client.models.generate_content(
             model=self.model,
-            contents=f"Article Title: {article_title}\nArticle Description: {description}",
+            contents=f" Title: {article_title}\n Description: {description}",
             config={
                 "system_instruction": CREATE_OUTLINE_SYSTEM_MESSAGE,
             },
@@ -210,4 +203,43 @@ class GeminiModel(BaseGenerationModel):
             completion_tokens=res.usage_metadata.candidates_token_count,
             total_tokens=res.usage_metadata.total_token_count,
             finish_reason=res.candidates[0].finish_reason,
+        )
+    def text_embedding(self, text):
+        res = self.client.models.embed_content(
+            model=self.default_embedding_model, contents=text,
+             config=types.EmbedContentConfig(
+                output_dimensionality=768, task_type="RETRIEVAL_DOCUMENT"
+            ),
+        )
+
+        return TextEmbeddingResponse(
+            embedding=res.embeddings[0].values,
+            model=self.default_embedding_model,
+            total_tokens=0,
+        )
+    def text_embedding_chunks(self,chunks:list[str])-> list[TextEmbeddingResponse]:
+        res = self.client.models.embed_content(
+            model=self.default_embedding_model, contents=chunks,
+             config=types.EmbedContentConfig(
+                output_dimensionality=768, task_type="RETRIEVAL_DOCUMENT"
+            ),
+        )
+
+        return [TextEmbeddingResponse(
+            embedding=embedding.values,
+            model=self.default_embedding_model,
+            total_tokens=0,
+        ) for  embedding in res.embeddings]
+
+    def query_embedding(self, text)-> TextEmbeddingResponse:
+        res = self.client.models.embed_content(
+            model=self.default_embedding_model, contents=text,
+            config=types.EmbedContentConfig(
+                output_dimensionality=768, task_type="RETRIEVAL_QUERY"
+            ),
+        )
+        return TextEmbeddingResponse(
+            embedding=res.embeddings[0].values,
+            model=self.default_embedding_model,
+            total_tokens=0,
         )

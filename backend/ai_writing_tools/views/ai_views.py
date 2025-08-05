@@ -190,8 +190,9 @@ class TextCompletionView(CreateAPIView):
             text=validated_data["original_text"],
         )
         completion_text = res["text"]
-        n_gen_tokens = res["completion_tokens"]
+        n_gen_tokens = res["total_tokens"]
         n_prompt_tokens = res["prompt_tokens"]
+        print(res)
         # claculate credits usage
         Operations.completion.get_user_payment(request, res["total_tokens"])
         used_credits = Operations.completion.calc_credits(res["total_tokens"])

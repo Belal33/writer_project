@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from ai_writing_tools.models import Project
 import uuid
+from pgvector.django import VectorField
+from pgvector.django import HnswIndex
 
 
 class UploadedFile(models.Model):
@@ -60,12 +62,7 @@ class Resource(models.Model):
     qaBoxes = models.ManyToManyField(QABox, related_name="resources")
     name = models.CharField(max_length=255)
     url = models.URLField(null=True, blank=True)
-    # json formated text
-    embeddings = models.JSONField(default=list)
-    # json formated text
-    paragraphs = models.JSONField()
-    text_source = models.TextField(
-        db_index=True, max_length=255, blank=True, null=True, unique=True
+    text_source = models.TextField(  blank=True, null=True,
     )
     type = models.CharField(
         max_length=10,
@@ -83,6 +80,34 @@ class Resource(models.Model):
 
     class Meta:
         ordering = ["-created_at"]
+
+
+class ResourceChunk(models.Model):
+    id = models.UUIDField(
+        default=uuid.uuid4, unique=True, primary_key=True, editable=False
+    )
+    resource = models.ForeignKey(
+        Resource, on_delete=models.CASCADE, related_name="chunks"
+    )
+    text = models.TextField(editable=False)
+    embedding = VectorField(dimensions=768, editable=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        indexes = [
+            HnswIndex(
+                fields=["embedding"],
+                m=16,
+                ef_construction=64,
+                name="hnsw_index",
+                # opclasses=["vector_cosine_ops"],
+                opclasses=["vector_ip_ops"],
+            ),
+        ]
+
+    def __str__(self):
+        return f"{self.resource.name}|{self.text[:20]}|{self.created_at}"
+# creaete signal the make chunks embeddings when resource is saved
 
 
 class QAMessage(models.Model):

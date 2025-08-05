@@ -108,6 +108,7 @@ class ProjectListCreateSerializer(serializers.ModelSerializer):
     outline = serializers.JSONField(write_only=True, required=False)
     article_text = serializers.CharField(write_only=True, required=False)
     words_count = serializers.SerializerMethodField()
+    description = serializers.CharField( required=False)
 
     def get_words_count(self, obj):
         return len(obj.article_text.split())

@@ -1,4 +1,4 @@
-from .models import Resource, UploadedFile, QAMessage, QABox
+from .models import Resource, UploadedFile, QAMessage, QABox, ResourceChunk
 from rest_framework import serializers
 
 
@@ -28,19 +28,40 @@ class QASearchSerializer(serializers.Serializer):
     q = serializers.CharField(trim_whitespace=True)
 
 
+class ResourceChunkSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ResourceChunk
+        fields = "__all__"
+
+
+class ResourceChunkWithDistanceSerializer(serializers.ModelSerializer):
+    """
+    Serializer for ResourceChunk that includes the calculated distance.
+    """
+
+    distance = serializers.FloatField(read_only=True)  # Reads the annotated value
+    resource_name = serializers.CharField(source="resource.name", read_only=True)
+    resource_type = serializers.CharField(source="resource.type", read_only=True)
+
+    class Meta:
+        model = ResourceChunk
+        fields = [
+            "id",
+            "text",
+            "resource_name",
+            "resource_type",
+            "distance",
+            "created_at",
+        ]
 class ResourceSerializer(serializers.ModelSerializer):
     name = serializers.CharField(max_length=50, required=True, trim_whitespace=True)
     username = serializers.CharField(source="user.username", read_only=True)
-    chucks_number = serializers.SerializerMethodField()
-    embeddings_number = serializers.SerializerMethodField()
-    text_source = serializers.CharField(
-        min_length=3,
-        required=True,
-        write_only=True,
-        trim_whitespace=True,
-    )
+    chucks_number = serializers.SerializerMethodField(read_only=True)
+    embeddings_number = serializers.SerializerMethodField(read_only=True)
+
 
     class Meta:
+        unique_together = ("name", "user")
         model = Resource
         fields = [
             "chucks_number",
@@ -50,7 +71,8 @@ class ResourceSerializer(serializers.ModelSerializer):
             "url",
             "username",
             "name",
-            "type",
+            # "qaBoxes",
+         "type",
             "created_at",
         ]
         # fields = "__all__"
@@ -71,16 +93,10 @@ class ResourceSerializer(serializers.ModelSerializer):
         return value
 
     def get_chucks_number(self, obj):
-        try:
-            return len(obj.get("paragraphs"))
-        except:
-            return len(obj.paragraphs)
+        return obj.chunks.count()
 
     def get_embeddings_number(self, obj):
-        try:
-            return len(obj.get("embeddings"))
-        except:
-            return len(obj.embeddings)
+        return obj.chunks.count()
 
 
 class QAMessageSerializer(serializers.ModelSerializer):
@@ -108,10 +124,10 @@ class QABoxSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "name",
-            "resources",
             "user_name",
             "project_name",
             "project",
             "created_at",
+            "resources",
         ]
         read_only_fields = ["user"]

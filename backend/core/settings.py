@@ -69,6 +69,7 @@ INSTALLED_APPS = [
     "ai_chat",
     "ai_writing_tools",
     "QA_box",
+    "pgvector",
 ]
 
 MIDDLEWARE = [
@@ -168,13 +169,24 @@ if False:
 else:
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
-
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+if False:
+    DATABASES   = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": env.str("DB_NAME"),
+            "USER": env.str("DB_USER"),
+            "PASSWORD": env.str("DB_PASSWORD"),
+            "HOST": env.str("DB_HOST"),
+            "PORT": env.str("DB_PORT"),
+        }
+    }
 
 
 # Password validation

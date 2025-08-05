@@ -3,6 +3,10 @@ from django.contrib.auth import get_user_model
 import uuid
 
 
+def get_default_article():
+    return [{"text": ""}]
+
+
 class Project(models.Model):
     id = models.UUIDField(
         default=uuid.uuid4, unique=True, primary_key=True, editable=False
@@ -18,7 +22,7 @@ class Project(models.Model):
     lang = models.CharField(max_length=3, default="en")
     name = models.CharField(max_length=255)
     title = models.CharField(max_length=255)
-    article = models.JSONField(default=[{"text": ""}])
+    article = models.JSONField(default=get_default_article)
     article_text = models.TextField(default="")
     outline = models.JSONField(default=list)
     description = models.TextField(default="")

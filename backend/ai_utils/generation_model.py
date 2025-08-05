@@ -49,7 +49,7 @@ class GenerationModel:
         text: str,
         article_title: str,
         article_outline: str = "",
-        max_tokens: int = 200,
+        max_tokens: int = 3000,
     ):
         return self.model_instance.text_completion(
             text=text,

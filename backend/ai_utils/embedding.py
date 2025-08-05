@@ -2,7 +2,7 @@ from scipy import spatial
 from scipy import spatial
 import re
 from .generation_model import GenerationModel
-
+from .gemini_model import GeminiModel
 
 class EmbeddedChunk:
 
@@ -24,10 +24,10 @@ class EmbeddingText:
 
     def __init__(
         self,
-        text: str = None,
-        embeddings: list = None,
-        paragraphs: list = None,
-        resource_name=None,
+        text: str = "",
+        embeddings: list = [],
+        paragraphs: list = [],
+        resource_name="",
     ):
 
         self.resource_name = resource_name
@@ -79,7 +79,7 @@ class EmbeddingText:
 
     @classmethod
     def clean_and_split_strings(
-        cls, string_list: list[str], chunk_size: int = 1000
+        cls, string_list: list[str], chunk_size: int = 2000
     ) -> list[str]:
         """
         Cleans a list of strings by removing unnecessary whitespace and splitting strings
@@ -108,16 +108,18 @@ class EmbeddingText:
     def _divide_full_text(self, full_paragraph: str):
         """split text into paragraphs with maximum length of 1000 word"""
 
-        splitted = re.split("\.\n", full_paragraph)
+        splitted = re.split(".\n", full_paragraph)
         splitted = [p for p in splitted if len(p) >= 15]
         paragraphs = self.clean_and_split_strings(splitted)
         return paragraphs
 
     def _get_embeddings(self, paragraphs):
         embeddings = []
-        for _input in paragraphs:
-            embed_req = GenerationModel().text_embedding(text=_input)["embedding"]
-            embeddings.append(embed_req)
+        # for _input in paragraphs:
+        #     embed_req = GenerationModel().text_embedding(text=_input)["embedding"]
+        #     embeddings.append(embed_req)
+        embeddings =[emb["embedding"] for emb in GeminiModel().text_embedding_chunks(paragraphs)]
+
         return embeddings
 
     def _divide_and_embed(self, full_paragraph: str, resource_name=None):

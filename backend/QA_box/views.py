@@ -11,15 +11,18 @@ from .serializers import (
     ResourceSerializer,
     FilePdfSerializer,
     FileUploadSerializer,
+    ResourceChunkSerializer,
+    ResourceChunkWithDistanceSerializer,
 )
-from .models import QABox, Resource, UploadedFile
+from .models import QABox, Resource, UploadedFile,ResourceChunk
 from ai_utils import embedding
 from search_utils import wiki
 from .qa_utils import most_related_paragraphs
 from rest_framework.parsers import FileUploadParser
-
+from rest_framework.validators import ValidationError
 from django.core.files.uploadedfile import InMemoryUploadedFile
-
+from pgvector.django import CosineDistance, MaxInnerProduct
+from ai_utils.gemini_model import GeminiModel
 
 class FileUploadView(ListCreateAPIView):
     serializer_class = FileUploadSerializer
@@ -110,26 +113,28 @@ class BoxResourceListCreateView(ListCreateAPIView):
     def perform_create(self, serializer):
         qa_box_id = self.kwargs["pk"]
         qa_box = get_object_or_404(QABox, id=qa_box_id, user=self.request.user)
-        try:
-            resource = Resource.objects.get(
-                url=serializer.validated_data["url"],
-                type=serializer.validated_data["type"],
-            )
+        text = serializer.validated_data["text_source"]
+        print(len(text.split()))
 
-            serializer.validated_data["embeddings"] = resource.embeddings
-            serializer.validated_data["paragraphs"] = resource.paragraphs
-            resource.qaBoxes.add(qa_box)
-            resource.projects.add(qa_box.project)
-        except:
-            # except Resource.DoesNotExist:
-            text = serializer.validated_data["text_source"]
-            embedded_text = embedding.EmbeddingText(text)
-            resource = serializer.save(
-                user=self.request.user,
-                embeddings=embedded_text.embeddings,
-                paragraphs=embedded_text.paragraphs,
-            )
-            resource.qaBoxes.add(qa_box)
+        embedded_text = embedding.EmbeddingText(text)
+        resource = serializer.save(
+            user=self.request.user,
+            text_source=text,
+        )
+        ResourceChunk.objects.bulk_create(
+            [
+                ResourceChunk(
+                    resource=resource,
+                    text=paragraph,
+                    embedding=embedding,
+                )
+                for embedding, paragraph in zip(
+                    embedded_text.embeddings, embedded_text.paragraphs
+                )
+            ]
+        )
+        resource.qaBoxes.add(qa_box)
+        if qa_box.project:
             resource.projects.add(qa_box.project)
 
 
@@ -145,11 +150,58 @@ class ResourceListCreateView(ListCreateAPIView):
         text = serializer.validated_data.pop("text_source")
         embedded_text = embedding.EmbeddingText(text)
         # Do something with the text field here
-        serializer.save(
+        resource =serializer.save(
             user=self.request.user,
             text_source=text,
-            embeddings=embedded_text.embeddings,
-            paragraphs=embedded_text.paragraphs,
+        )
+        ResourceChunk.objects.bulk_create(
+            [
+                ResourceChunk(
+                    resource=resource,
+                    text=paragraph,
+                    embedding=embedding,
+                )
+                for embedding, paragraph in zip(
+                    embedded_text.embeddings, embedded_text.paragraphs
+                )
+            ]
+        )
+
+
+class QABoxGetAnswerSearchVectorView(RetrieveAPIView):
+    queryset = QABox.objects.all()
+
+    # serializer_class = QABoxSerializer
+    def get_serializer_class(self):
+
+        if self.request.method == "POST":
+            return QASearchSerializer
+        else:
+            return QABoxSerializer
+
+    def get_queryset(self):
+        return self.queryset.filter(user=self.request.user)
+
+    def post(self, request, *args, **kwargs):
+        qa_box_id = self.kwargs["pk"]
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        query = serializer.validated_data["q"]
+        emb_q = GeminiModel().query_embedding(query)
+        chunks = (
+            ResourceChunk.objects.filter(resource__qaBoxes__id=qa_box_id)
+            .annotate(distance=MaxInnerProduct("embedding", emb_q["embedding"]))
+            .order_by("-distance")[:10]
+        )
+        answers = [
+            (chunk.text, chunk.distance, chunk.resource.name)
+            for chunk in chunks
+        ]
+        serializer = ResourceChunkWithDistanceSerializer(chunks, many=True)
+
+        return Response(
+            answers,
+            status=status.HTTP_200_OK,
         )
 
 
